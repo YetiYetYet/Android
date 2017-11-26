@@ -191,7 +191,7 @@ public class SokobanView extends SurfaceView implements SurfaceHolder.Callback, 
 	public void initparameters() {
 		if (!(paint != null))
 			paint = new Paint();
-		paint.setColor(0xff0000);
+		paint.setColor(0xFF0000);
 
 		paint.setDither(true);
 		paint.setColor(0xFFFFFF00);
