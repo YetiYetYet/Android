@@ -44,8 +44,6 @@ public class MenuView extends SurfaceView implements SurfaceHolder.Callback, Run
 
 		cv_thread   = new Thread(this);
 
-		initparameters();
-
 	}
 
 	public interface IMyEventListener {
@@ -67,6 +65,7 @@ public class MenuView extends SurfaceView implements SurfaceHolder.Callback, Run
 	public void surfaceCreated(SurfaceHolder arg0) {
 		Log.i("-> FCT <-", "surfaceCreated");
 		in = true;
+		initparameters();
 	}
 
 	public void surfaceDestroyed(SurfaceHolder arg0) {

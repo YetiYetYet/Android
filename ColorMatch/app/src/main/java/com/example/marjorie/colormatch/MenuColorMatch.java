@@ -9,7 +9,6 @@ import android.content.Intent;
 public class MenuColorMatch extends AppCompatActivity {
 
 	private MenuView mMenuView;
-
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -22,9 +21,15 @@ public class MenuColorMatch extends AppCompatActivity {
 			@Override
 			public void onEventAccured() {
 				Log.e("-OTE-", "They touch my children");
-
+				//mMenuView.setVisibility(View.INVISIBLE);
+				startGame();
 			}
 		});
+	}
+
+	public void startGame() {
+		Intent intent = new Intent(this, ColorMatchGame.class);
+		startActivity(intent);
 	}
 
 }
