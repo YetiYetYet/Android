@@ -11,6 +11,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.media.MediaPlayer;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -30,6 +31,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback, Run
 	SurfaceHolder holder;
 	volatile private boolean in = true;
 
+
 	/**
 	 * The constructor called from the main JetBoy activity
 	 *
@@ -48,11 +50,17 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback, Run
 	private Bitmap soul6;
 	private Bitmap background;
 	private int actualBackGround;
-	private float life;
+	private double life;
 	private int score;
 	private int scoreofthismove;
 	private int NbOcc;
 	private int actualOcc[] = new int[2];
+	MediaPlayer Mmusic=new MediaPlayer();
+	MediaPlayer Mfirstsong=new MediaPlayer();
+	MediaPlayer yeah=new MediaPlayer();
+	private boolean BfirstSong;
+	private int HearthBeatTime;
+	private int HearthBeat;
 
 
 	public GameView(Context context, AttributeSet attrs){
@@ -60,6 +68,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback, Run
 
 		mContext	= context;
 		mRes 		= mContext.getResources();
+
 
 		// permet d'ecouter les surfaceChanged, surfaceCreated, surfaceDestroyed
 		holder = getHolder();
@@ -73,10 +82,16 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback, Run
 		soul6 = BitmapFactory.decodeResource(mRes, R.drawable.soul6);
 		soul7 = BitmapFactory.decodeResource(mRes, R.drawable.soul7);
 
+		Mmusic = MediaPlayer.create(mContext, R.raw.game);
+		Mmusic.setLooping(true);
+		Mfirstsong = MediaPlayer.create(mContext, R.raw.hoyes);
+		yeah = MediaPlayer.create(mContext, R.raw.yeah);
+		yeah.setVolume(0.80f, 0.80f);
 
 		cv_thread   = new Thread(this);
 		initparameters();
 	}
+
 
 	// callback sur le cycle de vie de la surfaceview
 	public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
@@ -91,6 +106,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback, Run
 
 	public void surfaceDestroyed(SurfaceHolder arg0) {
 		Log.i("-> FCTG <-", "surfaceDestroyed");
+		Mmusic.pause();
 		in = false;
 
 	}
@@ -104,6 +120,15 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback, Run
 			actualBackGround = 0;
 		}
 		actualBackGround += 1;
+
+		if((HearthBeatTime > 0 && HearthBeatTime <= 2) || (HearthBeatTime > 4 && HearthBeatTime <= 6)){
+			HearthBeat = 5;
+		}else
+			HearthBeat = 0;
+
+		HearthBeatTime++;
+		if(HearthBeatTime > 12)
+			HearthBeatTime = 0;
 
 		InputStream assetInStream=null;
 		try {
@@ -123,16 +148,19 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback, Run
 		canvas.drawBitmap(background, -20, 200, null);
 		canvas.drawRect(20, 20, getWidth()-20, 160, myPaint);
 		myPaint.setColor(Color.rgb(255, 255, 0));
-		canvas.drawRect(20, 20, (getWidth()-20)*life, 160, myPaint);
+		canvas.drawRect(20, 20, (getWidth()-20)*(float)life, 160, myPaint);
 		myPaint.setColor(Color.rgb(0, 0, 0));
 		canvas.drawRect(0, 200, 150, 530, myPaint);
 		drawSoul(canvas);
 
 		paint.setColor(Color.rgb(255, 255, 255));
-		paint.setTextSize(100);
-
+		if(score<1000)
+			paint.setTextSize(100);
+		if(score>1000)
+			paint.setTextSize(94);
 		canvas.drawText("You have : "+  Integer.toString(score) + "pt Darling", 0, getHeight()-50, paint);
-		life += -0.003;
+		life = ((ColorMatchGame)getContext()).getCurrent_time();
+		//life += -0.002;
 	}
 
 	public void drawSoul(Canvas c){
@@ -141,32 +169,52 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback, Run
 			for(j = 0; j < 14; j++){
 				switch (board[i][j]){
 					case 1:
-						soul1 = Bitmap.createScaledBitmap(soul1, getWidth()/10, (getHeight()-200)/14, false);
-						c.drawBitmap(soul1, i*(getWidth()/10), j*((getHeight()-350)/14)+200, null);
+						soul1 = Bitmap.createScaledBitmap(soul1, getWidth()/10+HearthBeat, (getHeight()-200)/14+HearthBeat, false);
+						c.drawBitmap(soul1, i*(getWidth()/10)-(HearthBeat/2), j*((getHeight()-350)/14)+200-(HearthBeat/2), null);
 						break;
 					case 2:
-						soul2 = Bitmap.createScaledBitmap(soul2, getWidth()/10, (getHeight()-200)/14, false);
-						c.drawBitmap(soul2, i*(getWidth()/10), j*((getHeight()-350)/14)+200, null);
+						soul2 = Bitmap.createScaledBitmap(soul2, getWidth()/10+HearthBeat, (getHeight()-200)/14+HearthBeat, false);
+						c.drawBitmap(soul2, i*(getWidth()/10)-(HearthBeat/2), j*((getHeight()-350)/14)+200-(HearthBeat/2), null);
 						break;
 					case 3:
-						soul3 = Bitmap.createScaledBitmap(soul3, getWidth()/10, (getHeight()-200)/14, false);
-						c.drawBitmap(soul3, i*(getWidth()/10), j*((getHeight()-350)/14)+200, null);
+						soul3 = Bitmap.createScaledBitmap(soul3, getWidth()/10+HearthBeat, (getHeight()-200)/14+HearthBeat, false);
+						c.drawBitmap(soul3, i*(getWidth()/10)-(HearthBeat/2), j*((getHeight()-350)/14)+200-(HearthBeat/2), null);
 						break;
 					case 4:
-						soul4 = Bitmap.createScaledBitmap(soul4, getWidth()/10, (getHeight()-200)/14, false);
-						c.drawBitmap(soul4, i*(getWidth()/10), j*((getHeight()-350)/14)+200, null);
+						soul4 = Bitmap.createScaledBitmap(soul4, getWidth()/10+HearthBeat, (getHeight()-200)/14+HearthBeat, false);
+						c.drawBitmap(soul4, i*(getWidth()/10)-(HearthBeat/2), j*((getHeight()-350)/14)+200-(HearthBeat/2), null);
 						break;
 					case 5:
-						soul5 = Bitmap.createScaledBitmap(soul5, getWidth()/10, (getHeight()-200)/14, false);
-						c.drawBitmap(soul5, i*(getWidth()/10), j*((getHeight()-350)/14)+200, null);
+						soul5 = Bitmap.createScaledBitmap(soul5, getWidth()/10+HearthBeat, (getHeight()-200)/14+HearthBeat, false);
+						c.drawBitmap(soul5, i*(getWidth()/10)-(HearthBeat/2), j*((getHeight()-350)/14)+200-(HearthBeat/2), null);
 						break;
 					case 6:
-						soul6 = Bitmap.createScaledBitmap(soul6, getWidth()/10, (getHeight()-200)/14, false);
-						c.drawBitmap(soul6, i*(getWidth()/10), j*((getHeight()-350)/14)+200, null);
+						soul6 = Bitmap.createScaledBitmap(soul6, getWidth()/10+HearthBeat, (getHeight()-200)/14+HearthBeat, false);
+						c.drawBitmap(soul6, i*(getWidth()/10)-(HearthBeat/2), j*((getHeight()-350)/14)+200-(HearthBeat/2), null);
 						break;
 					case 7:
-						soul7 = Bitmap.createScaledBitmap(soul7, getWidth()/10, (getHeight()-200)/14, false);
-						c.drawBitmap(soul7, i*(getWidth()/10), j*((getHeight()-350)/14)+200, null);
+						soul7 = Bitmap.createScaledBitmap(soul7, getWidth()/10+HearthBeat, (getHeight()-200)/14+HearthBeat, false);
+						c.drawBitmap(soul7, i*(getWidth()/10)-(HearthBeat/2), j*((getHeight()-350)/14)+200-(HearthBeat/2), null);
+						break;
+					case 0:
+						break;
+					default:
+						InputStream assetInStream=null;
+						try {
+							assetInStream= mContext.getAssets().open("frame"+board[i][j]+".png");
+							Bitmap acc = BitmapFactory.decodeStream(assetInStream);
+							acc = Bitmap.createScaledBitmap(acc, acc.getWidth()/2, acc.getHeight()/2, false);
+							c.drawBitmap(acc, (i*(getWidth()/10)), (j*((getHeight()-350)/14)+200), null);
+						} catch (IOException e) {
+							e.printStackTrace();
+						} finally {
+							if(assetInStream!=null)
+								System.out.println();
+						}
+						if(board[i][j] == -31)
+							board[i][j]=0;
+						else
+							board[i][j]--;
 						break;
 				}
  			}
@@ -184,7 +232,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback, Run
 		if(tempx > 9 || tempy > 13 || tempx < 0 || tempy < 0){
 			return false;
 		}
-		if(board[tempx][tempy] != 0 && board[tempx][tempy] != 8){
+		if(board[tempx][tempy] > 0 && board[tempx][tempy] < 8){
 			return false;
 		}
 		if(x != 0){
@@ -272,14 +320,22 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback, Run
 				Log.e("-> RUN <-", "?" + NbOcc +" " + actualOcc[i] +" "+(temp[j][0]-1));
 				if(actualOcc[i] == (temp[j][0]-1)){
 					Log.e("-> RUN <-", "I Enter it");
-					board[temp[j][1]][temp[j][2]] = 0;
+					board[temp[j][1]][temp[j][2]] = -1;
 				}
 			}
 		}
 	}
 
-	public void nextPossibleMove(){
-
+	public boolean nextPossibleMove(){
+		int i;
+		int j;
+		for(i = 0; i < 10; i++){
+			for(j = 0; j < 14; j++){
+				if(validMoveAndCoord(i, j))
+					return true;
+			}
+		}
+		return false;
 	}
 
 	public void run(){
@@ -288,6 +344,9 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback, Run
 			try {
 				cv_thread.sleep(01);
 				try {
+					if(BfirstSong && Mfirstsong.isPlaying() && !Mmusic.isPlaying()){
+						Mmusic.start();
+					}
 					c = holder.lockCanvas(null);
 					nDraw(c);
 				} finally {
@@ -315,7 +374,11 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback, Run
 		paint.setTextAlign(Paint.Align.LEFT);
 		actualBackGround = 0;
 		life = 1;
+		HearthBeatTime = 20;
+		HearthBeat = 1;
 		initBoard();
+		Mfirstsong.start();
+		BfirstSong = true;
 		if ((cv_thread!=null) && (!cv_thread.isAlive())) {
 			cv_thread = new Thread(this);
 			cv_thread.start();
@@ -348,7 +411,9 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback, Run
 		Log.i("-> FCT <-", "correct ?: "+ validMoveAndCoord(x, y));
 		if(validMoveAndCoord(x, y)){
 			destroyIt();
+			yeah.start();
 			score += scoreofthismove;
+			Log.i("-> FCT <-", Boolean.toString(nextPossibleMove()));
 		}
 		return super.onTouchEvent(event);
 	}

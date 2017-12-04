@@ -5,7 +5,6 @@ import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
-import android.view.Window;
 import android.view.WindowManager;
 
 
@@ -17,6 +16,16 @@ public class ColorMatchGame extends AppCompatActivity implements Runnable {
 	private Handler timerHandler;
 	private long timerTotal = 0;
 	private Thread thread;
+
+	private double current_time = 0.;
+
+	public double getCurrent_time() {
+		return current_time;
+	}
+
+	private double max_time = 120000.;
+
+
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -45,20 +54,33 @@ public class ColorMatchGame extends AppCompatActivity implements Runnable {
 		this.timerHandler.removeCallbacks(this);
 	}
 
+	private int niveau_;
+	@Override
+	protected void onSaveInstanceState(Bundle outState) {
+		super.onSaveInstanceState(outState);
+		//outState.putInt("niveau", niveau_);
+		//outState.putInt("niveau", mGameView.getNiveau());
+	}
+
+	@Override
+	protected void onRestoreInstanceState(Bundle savedInstanceState) {
+		super.onRestoreInstanceState(savedInstanceState);
+		//mGameView.init(savedInstanceState.getInt("niveau"));
+	}
+
 	@Override
 	public void run() {
-		final long currentTime = this.getCurrentTime();
+		final long currentTime = (System.currentTimeMillis() - this.timerFromResume) + this.timerTotal;
+		current_time = 1 - (currentTime / max_time);
+		Log.e(getClass().getSimpleName(), String.valueOf(current_time));
+		/*
 		runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
 				Log.e(getClass().getSimpleName(), "running" + String.valueOf(currentTime));
 			}
 		});
-		this.timerHandler.postDelayed(this, 1000);
-	}
-
-	private long getCurrentTime(){
-		long delay = (System.currentTimeMillis() - this.timerFromResume) + this.timerTotal;
-		return delay / 1000;
+		*/
+		this.timerHandler.postDelayed(this, 100);
 	}
 }
