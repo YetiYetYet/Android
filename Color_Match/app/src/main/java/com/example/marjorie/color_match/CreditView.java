@@ -21,13 +21,12 @@ import android.view.SurfaceView;
 import java.io.IOException;
 import java.io.InputStream;
 
-public class MenuView extends SurfaceView implements SurfaceHolder.Callback, Runnable {
+public class CreditView extends SurfaceView implements SurfaceHolder.Callback, Runnable {
 
 	private Resources 	mRes;
 	private Context 	mContext;
 
 	private     Thread  cv_thread;
-
 	Paint paint;
 	SurfaceHolder holder;
 	volatile private boolean in = true;
@@ -55,7 +54,6 @@ public class MenuView extends SurfaceView implements SurfaceHolder.Callback, Run
 	private float white = 0;
 	public int buttonPressed = 0;
 
-
 	/**
 	 * The constructor called from the main JetBoy activity
 	 *
@@ -64,7 +62,7 @@ public class MenuView extends SurfaceView implements SurfaceHolder.Callback, Run
 	 */
 
 
-	public MenuView(Context context, AttributeSet attrs){
+	public CreditView(Context context, AttributeSet attrs){
 		super(context, attrs);
 
 		mContext	= context;
@@ -81,18 +79,8 @@ public class MenuView extends SurfaceView implements SurfaceHolder.Callback, Run
 		soul5 = BitmapFactory.decodeResource(mRes, R.drawable.soul5);
 		soul6 = BitmapFactory.decodeResource(mRes, R.drawable.soul6);
 		soul7 = BitmapFactory.decodeResource(mRes, R.drawable.soul7);
-		button1 = BitmapFactory.decodeResource(mRes, R.drawable.button1);
-		button2 = BitmapFactory.decodeResource(mRes, R.drawable.button2);
-		button3 = BitmapFactory.decodeResource(mRes, R.drawable.button3);
-		button4 = BitmapFactory.decodeResource(mRes, R.drawable.button4);
 
-		mute = BitmapFactory.decodeResource(mRes, R.drawable.sound1);
-		unmute = BitmapFactory.decodeResource(mRes, R.drawable.sound2);
-		unmute2 = Bitmap.createScaledBitmap(unmute, unmute.getWidth() / 11, unmute.getHeight() / 11, false);
-		mute2 = Bitmap.createScaledBitmap(mute, mute.getWidth() / 11, mute.getHeight() / 11, false);
-
-		Mmusic = MediaPlayer.create(mContext, R.raw.menu);
-		Mtransforms = MediaPlayer.create(mContext, R.raw.transform);
+		Mmusic = MediaPlayer.create(mContext, R.raw.credit);
 		Mmusic.setLooping(true);
 
 		cv_thread   = new Thread(this);
@@ -119,7 +107,7 @@ public class MenuView extends SurfaceView implements SurfaceHolder.Callback, Run
 		Log.i("-> FCT <-", "surfaceCreated");
 		in = true;
 		initparameters();
-		Mmusic = MediaPlayer.create(mContext, R.raw.menu);
+		Mmusic = MediaPlayer.create(mContext, R.raw.credit);
 		Mmusic.setLooping(true);
 		if(!bmute)
 			Mmusic.start();
@@ -135,57 +123,36 @@ public class MenuView extends SurfaceView implements SurfaceHolder.Callback, Run
 	private void nDraw(Canvas canvas) {
 		if(canvas == null)
 			return;
-		canvas.drawRGB(0,0,0);
-		if (actualBackGround < -20 && !transform) {
+		canvas.drawRGB(59, 28, 82);
+		if(actualBackGround > 43){
 			actualBackGround = 0;
 		}
-		if(!transform)
-			actualBackGround -= 1;
-		if (actualBackGround > 8 && transform) {
-			actualBackGround = 0;
-		}
-		if(transform)
-			actualBackGround += 1;
-
+		actualBackGround++;
 		InputStream assetInStream=null;
 		try {
-			assetInStream= mContext.getAssets().open("mframe"+actualBackGround+".png");
+			assetInStream= mContext.getAssets().open("pframe"+actualBackGround+".png");
 			Bitmap acc = BitmapFactory.decodeStream(assetInStream);
-			background = Bitmap.createScaledBitmap(acc, acc.getWidth()*4, acc.getHeight()*4, false);
-			canvas.drawBitmap(background, 100, 200, null);
+			background = Bitmap.createScaledBitmap(acc, acc.getWidth()*3, acc.getHeight()*3, false);
+			canvas.drawBitmap(background, -150, getHeight()-background.getHeight(), null);
 		} catch (IOException e) {
 			e.printStackTrace();
 		} finally {
 			if(assetInStream!=null)
 				System.out.println();
 		}
-		if(transform && Mtransforms.isPlaying()) {
-			Log.i("-> FCT <-", "METTATON" + white);
-			canvas.drawARGB((int)white, 255, 255, 255);
-			if(white<255)
-				white += 3;
-		}
+
 		Paint paint = new Paint();
-		paint.setColor(Color.rgb(255, 165, 0));
+		paint.setColor(Color.rgb(255, 255, 255));
 		paint.setStrokeWidth(10);
-		paint.setStyle(Paint.Style.STROKE);
+		paint.setStyle(Paint.Style.FILL);
 		//canvas.drawRect(30, ((getHeight()-background.getHeight())+150), getWidth()/2-30, getHeight()-((80+(getHeight()-background.getHeight()))/2)+200-30, paint);
 		//canvas.drawRect(getWidth()/2+30, ((getHeight()-background.getHeight())+150), getWidth()-30, getHeight()-((80+(getHeight()-background.getHeight()))/2)+200-30, paint);
 		//canvas.drawRect(30, getHeight()-((80+(getHeight()-background.getHeight()))/2)+200+30, getWidth()/2-30, getHeight()-30, paint);
 		//canvas.drawRect(getWidth()/2+30, getHeight()-((80+(getHeight()-background.getHeight()))/2)+200+30, getWidth()-30, getHeight()-30, paint);
 		//paint.setStyle(Paint.Style.FILL);
-		//paint.setTextSize(200);
-		//canvas.drawText("Play", 60, ((getHeight()-((80+(getHeight()-background.getHeight()))/2)+200-30)-(((getHeight()-background.getHeight())+150)))/2, paint);
-		if(!transform) {
-			if (bmute) {
-				canvas.drawBitmap(unmute2, getWidth() - (10 + unmute2.getWidth()), 10, null);
-			} else {
-				canvas.drawBitmap(mute2, getWidth() - (10 + mute2.getWidth()), 10, null);
-			}
-			canvas.drawBitmap(button4, getWidth() / 2 - button1.getWidth() / 2, background.getWidth() + 400 + 40, null);
-			canvas.drawBitmap(button1, getWidth() / 2 - button1.getWidth() / 2, background.getWidth() + 400 + 40 + (button1.getHeight() + 40), null);
-			canvas.drawBitmap(button2, getWidth() / 2 - button1.getWidth() / 2, background.getWidth() + 400 + 40 + (button1.getHeight() + 40) * 2, null);
-		}
+		paint.setTextSize(70);
+		canvas.drawText("Alexis BEHIER 14501367", 60, 100, paint);
+
 	}
 
 	public void run(){
@@ -196,12 +163,6 @@ public class MenuView extends SurfaceView implements SurfaceHolder.Callback, Run
 				try {
 					c = holder.lockCanvas(null);
 					nDraw(c);
-					if (mEventListener != null && !Mtransforms.isPlaying() && transform) {
-						mEventListener.onEventAccured();
-						transform = false;
-						cv_thread.sleep(1500);
-						white = 0;
-					}
 				} finally {
 					if (c != null) {
 						holder.unlockCanvasAndPost(c);
@@ -237,51 +198,6 @@ public class MenuView extends SurfaceView implements SurfaceHolder.Callback, Run
 	// fonction permettant de recuperer les evenements tactiles
 	public boolean onTouchEvent (MotionEvent event) {
 		Log.e("-OTE-", "They touch me");
-
-		if (event.getX() > getWidth() - (unmute2.getWidth() + 10) && event.getY() < (unmute2.getHeight() + 10)) {
-			bmute = !bmute;
-			if (bmute == true) {
-				Mmusic.setVolume(0, 0);
-			} else {
-				Mmusic.setVolume(1, 1);
-			}
-			return super.onTouchEvent(event);
-		}
-
-		if (event.getY() > 200 && event.getY() < background.getHeight() + 200) {
-			transform = true;
-			Mmusic.stop();
-			if (bmute)
-				Mtransforms.setVolume(0, 0);
-			else
-				Mtransforms.setVolume(1, 1);
-			Mtransforms.start();
-			buttonPressed = 0;
-			return super.onTouchEvent(event);
-		}
-		if(!transform) {
-			if (event.getX() > getWidth() / 2 - button1.getWidth() / 2 && event.getX() < (getWidth() / 2 - button1.getWidth()) + button1.getWidth() * 1.5) {
-				Log.e("-OTE-", "allbutton" + event.getY());
-				if (event.getY() > 400 + background.getHeight() + 40 && event.getY() < (440 + background.getHeight()) + button1.getHeight()) {
-					Log.e("-OTE-", "bouton1");
-					buttonPressed = 1;
-					mEventListener.onEventAccured();
-					return super.onTouchEvent(event);
-				}
-				if (event.getY() > (480 + background.getHeight()) + button1.getHeight() && event.getY() < (440 + background.getHeight()) + (button1.getHeight() + 40) * 2) {
-					Log.e("-OTE-", "bouton2");
-					buttonPressed = 2;
-					mEventListener.onEventAccured();
-					return super.onTouchEvent(event);
-				}
-				if (event.getY() > (440 + background.getHeight()) + (button1.getHeight() + 40) * 2 && event.getY() < (440 + background.getHeight()) + (button1.getHeight() + 40) * 3) {
-					Log.e("-OTE-", "bouton3");
-					buttonPressed = 3;
-					mEventListener.onEventAccured();
-					return super.onTouchEvent(event);
-				}
-			}
-		}
 		return super.onTouchEvent(event);
 	}
 

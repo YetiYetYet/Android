@@ -61,6 +61,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback, Run
 	private boolean BfirstSong;
 	private int HearthBeatTime;
 	private int HearthBeat;
+	private boolean finish = false;
 
 
 	public GameView(Context context, AttributeSet attrs){
@@ -86,7 +87,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback, Run
 		Mmusic.setLooping(true);
 		Mfirstsong = MediaPlayer.create(mContext, R.raw.hoyes);
 		yeah = MediaPlayer.create(mContext, R.raw.yeah);
-		yeah.setVolume(0.80f, 0.80f);
+		yeah.setVolume(0.90f, 0.90f);
 
 		cv_thread   = new Thread(this);
 		initparameters();
@@ -149,6 +150,8 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback, Run
 		canvas.drawRect(20, 20, getWidth()-20, 160, myPaint);
 		myPaint.setColor(Color.rgb(255, 255, 0));
 		canvas.drawRect(20, 20, (getWidth()-20)*(float)life, 160, myPaint);
+		if(life <= 0)
+			finish = true;
 		myPaint.setColor(Color.rgb(0, 0, 0));
 		canvas.drawRect(0, 200, 150, 530, myPaint);
 		drawSoul(canvas);
@@ -161,6 +164,10 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback, Run
 		canvas.drawText("You have : "+  Integer.toString(score) + "pt Darling", 0, getHeight()-50, paint);
 		life = ((ColorMatchGame)getContext()).getCurrent_time();
 		//life += -0.002;
+	}
+
+	private void finishDraw(Canvas canvas) {
+		return;
 	}
 
 	public void drawSoul(Canvas c){
@@ -348,7 +355,10 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback, Run
 						Mmusic.start();
 					}
 					c = holder.lockCanvas(null);
-					nDraw(c);
+					if(!finish)
+						nDraw(c);
+					else
+						finishDraw(c);
 				} finally {
 					if (c != null) {
 						holder.unlockCanvasAndPost(c);
@@ -414,7 +424,8 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback, Run
 			yeah.start();
 			score += scoreofthismove;
 			Log.i("-> FCT <-", Boolean.toString(nextPossibleMove()));
-		}
+		}else
+			finish = true;
 		return super.onTouchEvent(event);
 	}
 }
