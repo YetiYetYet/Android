@@ -26,7 +26,6 @@ public class MenuColorMatch extends AppCompatActivity {
 
 			@Override
 			public void onEventAccured() {
-				Log.e("UGH", "They touch children");
 				//mMenuView.setVisibility(View.INVISIBLE);
 				if(mMenuView.buttonPressed == 0)
 					startGame();

@@ -31,28 +31,9 @@ public class CreditView extends SurfaceView implements SurfaceHolder.Callback, R
 	SurfaceHolder holder;
 	volatile private boolean in = true;
 	MediaPlayer Mmusic=new MediaPlayer();
-	MediaPlayer Mtransforms=new MediaPlayer();
 	private Bitmap background;
 	private int actualBackGround;
-	private Bitmap soul7;
-	private Bitmap soul1;
-	private Bitmap soul2;
-	private Bitmap soul3;
-	private Bitmap soul4;
-	private Bitmap soul5;
-	private Bitmap soul6;
-	private Bitmap button1;
-	private Bitmap button2;
-	private Bitmap button3;
-	private Bitmap button4;
-	private Bitmap mute;
-	private Bitmap mute2;
-	private Bitmap unmute;
-	private Bitmap unmute2;
 	private boolean bmute = false;
-	private boolean transform = false;
-	private float white = 0;
-	public int buttonPressed = 0;
 
 	/**
 	 * The constructor called from the main JetBoy activity
@@ -71,14 +52,6 @@ public class CreditView extends SurfaceView implements SurfaceHolder.Callback, R
 		// permet d'ecouter les surfaceChanged, surfaceCreated, surfaceDestroyed
 		holder = getHolder();
 		holder.addCallback(this);
-
-		soul1 = BitmapFactory.decodeResource(mRes, R.drawable.soul1);
-		soul2 = BitmapFactory.decodeResource(mRes, R.drawable.soul2);
-		soul3 = BitmapFactory.decodeResource(mRes, R.drawable.soul3);
-		soul4 = BitmapFactory.decodeResource(mRes, R.drawable.soul4);
-		soul5 = BitmapFactory.decodeResource(mRes, R.drawable.soul5);
-		soul6 = BitmapFactory.decodeResource(mRes, R.drawable.soul6);
-		soul7 = BitmapFactory.decodeResource(mRes, R.drawable.soul7);
 
 		Mmusic = MediaPlayer.create(mContext, R.raw.credit);
 		Mmusic.setLooping(true);
@@ -197,7 +170,6 @@ public class CreditView extends SurfaceView implements SurfaceHolder.Callback, R
 
 	// fonction permettant de recuperer les evenements tactiles
 	public boolean onTouchEvent (MotionEvent event) {
-		Log.e("-OTE-", "They touch me");
 		return super.onTouchEvent(event);
 	}
 

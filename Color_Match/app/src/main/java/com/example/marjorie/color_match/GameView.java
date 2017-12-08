@@ -17,8 +17,6 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
-import android.widget.Button;
-
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -220,9 +218,9 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback, Run
 				w = (background.getHeight() / 9 - 50) + 132 * i;
 				canvas.drawLine(w, 0, w, getWidth(), myPaint);
 			}
+			canvas.drawLine(0, background.getHeight()/3-15, getWidth(), background.getHeight()/3-15, myPaint);
 		}
 
-		canvas.drawLine(0, background.getHeight()/3-15, getWidth(), background.getHeight()/3-15, myPaint);
 		myPaint.setTextSize(50);
 		canvas.drawText(actualString, getWidth()/4, (background.getHeight()/3)-100, myPaint);
 		return;
@@ -304,7 +302,6 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback, Run
 			while (tempx > 0){
 				tempx -= 1;
 				if(board[tempx][tempy] != 0 && board[tempx][tempy] != 8){
-					Log.e("-Gauche", "GAUCHE");
 					temp[0][0] = board[tempx][tempy];
 					temp[0][1] = tempx;
 					temp[0][2] = tempy;
@@ -317,7 +314,6 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback, Run
 			while (tempx < 9){
 				tempx += 1;
 				if(board[tempx][tempy] != 0 && board[tempx][tempy] != 8){
-					Log.e("DROITE", "DROITE");
 					temp[1][0] = board[tempx][tempy];
 					temp[1][1] = tempx;
 					temp[1][2] = tempy;
@@ -330,7 +326,6 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback, Run
 			while (tempy > 0){
 				tempy -= 1;
 				if(board[tempx][tempy] != 0 && board[tempx][tempy] != 8){
-					Log.e("-BAS", "BAS");
 					temp[2][0] = board[tempx][tempy];
 					temp[2][1] = tempx;
 					temp[2][2] = tempy;
@@ -343,7 +338,6 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback, Run
 			while (tempy < 13){
 				tempy += 1;
 				if(board[tempx][tempy] != 0 && board[tempx][tempy] != 8){
-					Log.e("HAUT", "HAUT");
 					temp[3][0] = board[tempx][tempy];
 					temp[3][1] = tempx;
 					temp[3][2] = tempy;
@@ -359,7 +353,6 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback, Run
 		}
 		NbOcc = 0;
 		for(int i = 0; i<7; i++){
-			Log.e("-> RUN <-", "PB DANS RUN : " + i + color[i]);
 			if(color[i]>1){
 				if(color[i]==2){
 					scoreofthismove = 40;
@@ -382,9 +375,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback, Run
 	public void destroyIt(){
 		for(int i = 0; i<NbOcc; i++){
 			for(int j = 0;j<4;j++){
-				Log.e("-> RUN <-", "?" + NbOcc +" " + actualOcc[i] +" "+(temp[j][0]-1));
 				if(actualOcc[i] == (temp[j][0]-1)){
-					Log.e("-> RUN <-", "I Enter it");
 					board[temp[j][1]][temp[j][2]] = -1;
 				}
 			}
@@ -451,7 +442,6 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback, Run
 		if ((cv_thread!=null) && (!cv_thread.isAlive())) {
 			cv_thread = new Thread(this);
 			cv_thread.start();
-			Log.e("-FCT-", "cv_thread.start()");
 			return;
 		}
 	}
@@ -465,7 +455,6 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback, Run
 			for(j = 0; j < 14; j++){
 				board[i][j] = nbr;
 				nbr = r.nextInt(8);
-				//System.out.println(i+" "+j+" "+board[i][j]);
 			}
 		}
 	}
@@ -496,19 +485,13 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback, Run
 	}
 
 	public boolean onTouchEvent (MotionEvent event) {
-		Log.i("-> FCT <-", "onTouchEvent: "+ event.getX());
-		Log.i("-> FCT <-", "onTouchEvent: "+ event.getY());
 		if(!finish) {
 			int x = (int)event.getX()/(getWidth()/10);
 			int y = (int)(event.getY()-200)/((getHeight()-350)/14);
-			Log.i("-> FCT <-", "onTouchEvent: "+ x);
-			Log.i("-> FCT <-", "onTouchEvent: "+ y);
-			Log.i("-> FCT <-", "correct ?: "+ validMoveAndCoord(x, y));
 			if (validMoveAndCoord(x, y)) {
 				destroyIt();
 				yeah.start();
 				score += scoreofthismove;
-				Log.i("-> FCT <-", Boolean.toString(nextPossibleMove()));
 				if (!nextPossibleMove()) {
 					finish = true;
 				}
@@ -521,18 +504,15 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback, Run
 			if(event.getY() > (background.getHeight()/3-15) && event.getY()<(background.getHeight()/3-15)+65*4 && event.getX() >(background.getHeight() / 9-50) && event.getX() <getWidth()-132) {
 				y = (int) ((event.getY() - (background.getHeight() / 3 - 15)) / ((((background.getHeight() / 3 - 15) + 65 * 4) - ((background.getHeight() / 3 - 15))) / 4));
 				x = (int) ((event.getX() - ((background.getHeight() / 9 - 50))) / (((((background.getHeight() / 9 - 50) + 132 * 8) - (((background.getHeight() / 9 - 50))+132)) / 7)));
-				Log.i("-> FCT <-", "Haut " + y + " " + x);
 				actualString += boardBigLetter[x][y];
 			}
 			if (event.getY() > (background.getHeight() / 3 - 15 + 37) + 65 * 4 && event.getY() < (background.getHeight() / 3 - 15 + 37) + 65 * 8 && event.getX() > (background.getHeight() / 9 - 50) && event.getX() < getWidth()-132) {
 				y = (int) ((event.getY() - ((background.getHeight() / 3 - 15 + 37) + 65 * 4)) / ((((background.getHeight() / 3 - 15 + 37) + 65 * 8) - ((background.getHeight() / 3 - 15 + 37) + 65 * 4)) / 4));
 				x = (int) ((event.getX() - ((background.getHeight() / 9 - 50))) / (((((background.getHeight() / 9 - 50) + 132 * 8) - (((background.getHeight() / 9 - 50))+132)) / 7)));
-				Log.i("-> FCT <-", "Bas " + y + " " + x);
 				actualString += boardLetter[x][y];
 			}
 			if(event.getY()>((background.getHeight()/3-15+37)+65*8)+30 && event.getY()<background.getHeight()){
 				x = (int)event.getX()/(getWidth()/3);
-				Log.i("-> FCT <-", "très bas " + x);
 				if(x == 0){
 					buttonPressed = 0;
 					mEventListener.onEventAccured();

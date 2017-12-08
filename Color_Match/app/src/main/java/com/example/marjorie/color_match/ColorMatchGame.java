@@ -56,7 +56,6 @@ public class ColorMatchGame extends AppCompatActivity implements Runnable {
 
 			@Override
 			public void onEventAccured() {
-				Log.e("UGH", "They touch children");
 				//mMenuView.setVisibility(View.INVISIBLE);
 				if(mGameView.buttonPressed == 2){
 					DataBase db = new DataBase(ColorMatchGame.this);
@@ -71,7 +70,6 @@ public class ColorMatchGame extends AppCompatActivity implements Runnable {
 	protected void onPause() {
 		super.onPause();
 		this.timerTotal += (System.currentTimeMillis() - timerFromResume);
-		Log.e(getClass().getSimpleName(), "PAUSED");
 		this.timerHandler.removeCallbacks(this);
 	}
 

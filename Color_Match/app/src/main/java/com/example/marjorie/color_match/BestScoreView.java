@@ -6,8 +6,6 @@ package com.example.marjorie.color_match;
 
 import android.content.Context;
 import android.content.res.Resources;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -18,8 +16,6 @@ import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
-import java.io.IOException;
-import java.io.InputStream;
 
 public class BestScoreView extends SurfaceView implements SurfaceHolder.Callback, Runnable {
 
@@ -33,8 +29,7 @@ public class BestScoreView extends SurfaceView implements SurfaceHolder.Callback
 
 	volatile private boolean in = true;
 	MediaPlayer Mmusic=new MediaPlayer();
-	private Bitmap background;
-	private int actualBackGround;
+
 	private boolean bmute = false;
 	private String[] bestScore;
 
@@ -158,7 +153,6 @@ public class BestScoreView extends SurfaceView implements SurfaceHolder.Callback
 
 	// fonction permettant de recuperer les evenements tactiles
 	public boolean onTouchEvent (MotionEvent event) {
-		Log.e("-OTE-", "They touch me");
 		return super.onTouchEvent(event);
 	}
 
