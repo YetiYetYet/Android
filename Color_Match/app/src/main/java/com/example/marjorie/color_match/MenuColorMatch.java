@@ -26,10 +26,12 @@ public class MenuColorMatch extends AppCompatActivity {
 
 			@Override
 			public void onEventAccured() {
-				Log.e("UGH", "They touch my children");
+				Log.e("UGH", "They touch children");
 				//mMenuView.setVisibility(View.INVISIBLE);
 				if(mMenuView.buttonPressed == 0)
 					startGame();
+				if(mMenuView.buttonPressed == 1)
+					startBestScore();
 				if(mMenuView.buttonPressed == 2)
 					startCredit();
 				if(mMenuView.buttonPressed == 3)
@@ -40,6 +42,11 @@ public class MenuColorMatch extends AppCompatActivity {
 
 	public void startGame() {
 		Intent intent = new Intent(this, ColorMatchGame.class);
+		startActivity(intent);
+	}
+
+	public void startBestScore() {
+		Intent intent = new Intent(this, BestScore.class);
 		startActivity(intent);
 	}
 

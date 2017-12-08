@@ -17,6 +17,8 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
+import android.widget.Button;
+
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -40,6 +42,8 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback, Run
 	 */
 
 	int [][] board = new int[10][14];
+	char [][] boardLetter = new char[7][4];
+	char [][] boardBigLetter = new char[7][4];
 	int temp [][] = new int[4][3];
 	private Bitmap soul7;
 	private Bitmap soul1;
@@ -51,7 +55,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback, Run
 	private Bitmap background;
 	private int actualBackGround;
 	private double life;
-	private int score;
+	public int score;
 	private int scoreofthismove;
 	private int NbOcc;
 	private int actualOcc[] = new int[2];
@@ -62,6 +66,8 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback, Run
 	private int HearthBeatTime;
 	private int HearthBeat;
 	private boolean finish = false;
+	public String actualString = "";
+	public int buttonPressed = 0;
 
 
 	public GameView(Context context, AttributeSet attrs){
@@ -84,7 +90,6 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback, Run
 		soul7 = BitmapFactory.decodeResource(mRes, R.drawable.soul7);
 
 		Mmusic = MediaPlayer.create(mContext, R.raw.game);
-		Mmusic.setLooping(true);
 		Mfirstsong = MediaPlayer.create(mContext, R.raw.hoyes);
 		yeah = MediaPlayer.create(mContext, R.raw.yeah);
 		yeah.setVolume(0.90f, 0.90f);
@@ -93,7 +98,15 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback, Run
 		initparameters();
 	}
 
+	public interface IMyEventListener {
+		public void onEventAccured();
+	}
 
+	private GameView.IMyEventListener mEventListener;
+
+	public void setEventListener(GameView.IMyEventListener mEventListener) {
+		this.mEventListener = mEventListener;
+	}
 	// callback sur le cycle de vie de la surfaceview
 	public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
 		Log.i("-> FCTG <-", "surfaceChanged "+ width +" - "+ height);
@@ -149,8 +162,9 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback, Run
 		canvas.drawBitmap(background, -20, 200, null);
 		canvas.drawRect(20, 20, getWidth()-20, 160, myPaint);
 		myPaint.setColor(Color.rgb(255, 255, 0));
-		canvas.drawRect(20, 20, (getWidth()-20)*(float)life, 160, myPaint);
-		if(life <= 0)
+		if(!((float)life < 0.0165))
+			canvas.drawRect(20, 20, (getWidth()-20)*(float)life, 160, myPaint);
+		if(!((float)life > 0.001))
 			finish = true;
 		myPaint.setColor(Color.rgb(0, 0, 0));
 		canvas.drawRect(0, 200, 150, 530, myPaint);
@@ -163,10 +177,54 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback, Run
 			paint.setTextSize(94);
 		canvas.drawText("You have : "+  Integer.toString(score) + "pt Darling", 0, getHeight()-50, paint);
 		life = ((ColorMatchGame)getContext()).getCurrent_time();
-		//life += -0.002;
+		if(!(life>0.001)){
+			finish = true;
+		}
 	}
 
 	private void finishDraw(Canvas canvas) {
+		if (actualBackGround > 77) {
+			actualBackGround = 0;
+		}
+		actualBackGround++;
+
+		canvas.drawRGB(0, 0, 0);
+		InputStream assetInStream = null;
+		try {
+			assetInStream = mContext.getAssets().open("nframe" + actualBackGround + ".png");
+			Bitmap acc = BitmapFactory.decodeStream(assetInStream);
+			background = Bitmap.createScaledBitmap(acc, acc.getWidth() * 2, acc.getHeight() * 2 + 200, false);
+
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally {
+			if (assetInStream != null)
+				System.out.println();
+		}
+		Paint myPaint = new Paint();
+		myPaint.setColor(Color.rgb(255, 255, 255));
+		myPaint.setStrokeWidth(3);
+		canvas.drawBitmap(background, (getWidth() - background.getWidth()) / 2, 0, null);
+		if (false){
+			float h = 0;
+			float w = 0;
+			for (int i = 0; i < 5; i++) {
+				h = (background.getHeight() / 3 - 15) + 65 * i;
+				canvas.drawLine(0, h, getWidth(), h, myPaint);
+			}
+			for (int i = 4; i < 9; i++) {
+				h = (background.getHeight() / 3 - 15 + 37) + 65 * i;
+				canvas.drawLine(0, h, getWidth(), h, myPaint);
+			}
+			for (int i = 0; i < 9; i++) {
+				w = (background.getHeight() / 9 - 50) + 132 * i;
+				canvas.drawLine(w, 0, w, getWidth(), myPaint);
+			}
+		}
+
+		canvas.drawLine(0, background.getHeight()/3-15, getWidth(), background.getHeight()/3-15, myPaint);
+		myPaint.setTextSize(50);
+		canvas.drawText(actualString, getWidth()/4, (background.getHeight()/3)-100, myPaint);
 		return;
 	}
 
@@ -387,6 +445,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback, Run
 		HearthBeatTime = 20;
 		HearthBeat = 1;
 		initBoard();
+		initLetter();
 		Mfirstsong.start();
 		BfirstSong = true;
 		if ((cv_thread!=null) && (!cv_thread.isAlive())) {
@@ -406,26 +465,88 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback, Run
 			for(j = 0; j < 14; j++){
 				board[i][j] = nbr;
 				nbr = r.nextInt(8);
-				System.out.println(i+" "+j+" "+board[i][j]);
+				//System.out.println(i+" "+j+" "+board[i][j]);
 			}
 		}
+	}
+
+	public void initLetter(){
+		int i;
+		int j;
+		int actualLetter = 97;
+		for(j = 0; j < 4; j++){
+			for(i = 0; i < 7; i++){
+				boardLetter[i][j] = (char)actualLetter;
+				actualLetter++;
+				System.out.println(i+" "+j+" "+boardLetter[i][j]);
+			}
+		}
+		actualLetter = 65;
+		for(j = 0; j < 4; j++){
+			for(i = 0; i < 7; i++){
+				boardBigLetter[i][j] = (char)actualLetter;
+				actualLetter++;
+				System.out.println(i+" "+j+" "+boardBigLetter[i][j]);
+			}
+		}
+	}
+
+	private static String removeLastChar(String str) {
+		return str.substring(0, str.length() - 1);
 	}
 
 	public boolean onTouchEvent (MotionEvent event) {
 		Log.i("-> FCT <-", "onTouchEvent: "+ event.getX());
 		Log.i("-> FCT <-", "onTouchEvent: "+ event.getY());
-		int x = (int)event.getX()/(getWidth()/10);
-		int y = (int)(event.getY()-200)/((getHeight()-350)/14);
-		Log.i("-> FCT <-", "onTouchEvent: "+ x);
-		Log.i("-> FCT <-", "onTouchEvent: "+ y);
-		Log.i("-> FCT <-", "correct ?: "+ validMoveAndCoord(x, y));
-		if(validMoveAndCoord(x, y)){
-			destroyIt();
-			yeah.start();
-			score += scoreofthismove;
-			Log.i("-> FCT <-", Boolean.toString(nextPossibleMove()));
-		}else
-			finish = true;
+		if(!finish) {
+			int x = (int)event.getX()/(getWidth()/10);
+			int y = (int)(event.getY()-200)/((getHeight()-350)/14);
+			Log.i("-> FCT <-", "onTouchEvent: "+ x);
+			Log.i("-> FCT <-", "onTouchEvent: "+ y);
+			Log.i("-> FCT <-", "correct ?: "+ validMoveAndCoord(x, y));
+			if (validMoveAndCoord(x, y)) {
+				destroyIt();
+				yeah.start();
+				score += scoreofthismove;
+				Log.i("-> FCT <-", Boolean.toString(nextPossibleMove()));
+				if (!nextPossibleMove()) {
+					finish = true;
+				}
+			}
+		}
+
+		if(finish){
+			int x;
+			int y;
+			if(event.getY() > (background.getHeight()/3-15) && event.getY()<(background.getHeight()/3-15)+65*4 && event.getX() >(background.getHeight() / 9-50) && event.getX() <getWidth()-132) {
+				y = (int) ((event.getY() - (background.getHeight() / 3 - 15)) / ((((background.getHeight() / 3 - 15) + 65 * 4) - ((background.getHeight() / 3 - 15))) / 4));
+				x = (int) ((event.getX() - ((background.getHeight() / 9 - 50))) / (((((background.getHeight() / 9 - 50) + 132 * 8) - (((background.getHeight() / 9 - 50))+132)) / 7)));
+				Log.i("-> FCT <-", "Haut " + y + " " + x);
+				actualString += boardBigLetter[x][y];
+			}
+			if (event.getY() > (background.getHeight() / 3 - 15 + 37) + 65 * 4 && event.getY() < (background.getHeight() / 3 - 15 + 37) + 65 * 8 && event.getX() > (background.getHeight() / 9 - 50) && event.getX() < getWidth()-132) {
+				y = (int) ((event.getY() - ((background.getHeight() / 3 - 15 + 37) + 65 * 4)) / ((((background.getHeight() / 3 - 15 + 37) + 65 * 8) - ((background.getHeight() / 3 - 15 + 37) + 65 * 4)) / 4));
+				x = (int) ((event.getX() - ((background.getHeight() / 9 - 50))) / (((((background.getHeight() / 9 - 50) + 132 * 8) - (((background.getHeight() / 9 - 50))+132)) / 7)));
+				Log.i("-> FCT <-", "Bas " + y + " " + x);
+				actualString += boardLetter[x][y];
+			}
+			if(event.getY()>((background.getHeight()/3-15+37)+65*8)+30 && event.getY()<background.getHeight()){
+				x = (int)event.getX()/(getWidth()/3);
+				Log.i("-> FCT <-", "très bas " + x);
+				if(x == 0){
+					buttonPressed = 0;
+					mEventListener.onEventAccured();
+				}
+				if(x == 1){
+					if(actualString.length()>0)
+						actualString = removeLastChar(actualString);
+				}
+				if(x == 2){
+					buttonPressed = 2;
+					mEventListener.onEventAccured();
+				}
+			}
+		}
 		return super.onTouchEvent(event);
 	}
 }

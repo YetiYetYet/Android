@@ -6,6 +6,12 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
+import android.content.Intent;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 
 
 public class ColorMatchGame extends AppCompatActivity implements Runnable {
@@ -23,7 +29,7 @@ public class ColorMatchGame extends AppCompatActivity implements Runnable {
 		return current_time;
 	}
 
-	private double max_time = 120000.;
+	private double max_time = 136000.;
 
 
 
@@ -31,6 +37,7 @@ public class ColorMatchGame extends AppCompatActivity implements Runnable {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		timerHandler = new Handler();
+
 	}
 
 	@Override
@@ -44,6 +51,20 @@ public class ColorMatchGame extends AppCompatActivity implements Runnable {
 		setContentView(R.layout.game);
 		mGameView = (GameView)findViewById(R.id.GameView);
 		mGameView.setVisibility(View.VISIBLE);
+
+		mGameView.setEventListener(new GameView.IMyEventListener() {
+
+			@Override
+			public void onEventAccured() {
+				Log.e("UGH", "They touch children");
+				//mMenuView.setVisibility(View.INVISIBLE);
+				if(mGameView.buttonPressed == 2){
+					DataBase db = new DataBase(ColorMatchGame.this);
+					db.insert(mGameView.score, mGameView.actualString);
+				}
+				finish();
+			}
+		});
 	}
 
 	@Override
@@ -68,11 +89,12 @@ public class ColorMatchGame extends AppCompatActivity implements Runnable {
 		//mGameView.init(savedInstanceState.getInt("niveau"));
 	}
 
+
 	@Override
 	public void run() {
 		final long currentTime = (System.currentTimeMillis() - this.timerFromResume) + this.timerTotal;
 		current_time = 1 - (currentTime / max_time);
-		Log.e(getClass().getSimpleName(), String.valueOf(current_time));
+		//Log.e(getClass().getSimpleName(), String.valueOf(current_time));
 		/*
 		runOnUiThread(new Runnable() {
 			@Override
